@@ -1,0 +1,355 @@
+---
+title: "R_Workshop_Day2"
+author: "Tess Cherlin"
+date: "2023-07-14"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+###################################
+# 1.2 Get to know the data
+###################################
+# Read in the data
+```{r}
+# Read in the two files
+dat_1 = read.csv("RNAseq_Data_1.csv")
+dat_2 = read.csv("RNAseq_Data_2.csv")
+
+# Look at the head() of each data set
+head(dat_1)
+head(dat_2)
+```
+
+# Let's look at the dimensions and column names of the data
+```{r}
+# This function tells you the number of rows and columns
+dim(dat_1)
+
+# The function prints the names of each of the columns
+colnames(dat_1)
+```
+
+###################################
+# 2.3 Try out different tables
+##################################
+# Summary function
+```{r}
+# Summarize Sample BC_1_RPKM in dat_1
+summary(dat_1$BC_1_fpkm)
+
+# Summarize the Gene Length in dat_1
+summary(dat_1$GeneLength)
+```
+
+# Table
+```{r}
+# Count the number of chromosomes are represented in the data
+table(dat_1$Chrom)
+
+# Count the number of gene types
+table(dat_1$GeneType)
+```
+# Summarise
+```{r}
+# Load the appropriate packages that are not built into R
+library(dplyr)
+
+# Summarize the gene length by chromosome
+summary_data1 <- dat_1 %>%
+  group_by(Chrom) %>%
+  summarise(mean_geneLength = mean(GeneLength), sum_geneLength = sum(GeneLength))
+
+summary_data1
+
+
+# Summarize the gene length by GeneType
+summary_data2 <- dat_1 %>%
+  group_by(GeneType) %>%
+  summarise(mean_geneLength = mean(GeneLength), sum_geneLength = sum(GeneLength))
+
+summary_data2
+```
+
+# Join both dat_1 and dat_2 tables together
+```{r}
+# Join data using left_join()
+dat_joined_left = left_join(dat_1, dat_2, by = c("geneID","GeneName","Chrom","Strand", "Start","End","GeneLength", "GeneType", "GeneDescription"))
+
+# Join data using inner_join()
+dat_joined_inner = inner_join(dat_1, dat_2, by = c("geneID","GeneName","Chrom","Strand", "Start","End","GeneLength", "GeneType", "GeneDescription"))
+
+# Look at the column names of the data dat_joined_inner
+colnames(dat_joined_inner)
+# Reorganize data so GeneType and GeneDescripton is at the end of the table
+dat_joined_inner = dat_joined_inner[,c(1:13,16:21,14:15)]
+
+head(dat_joined_inner)
+```
+# Put it all together
+```{r}
+# Make a new dataset
+dat_new = dat_joined_inner
+
+# Calculate the mean of experiment BC
+dat_new$BC_fpkm_average = rowMeans(dat_new[,c(8:10)])
+
+# Calculate the standard deviation of BC using the apply() function
+dat_new$BC_fpkm_sd = apply(dat_new[,c(8:10)], 1, sd)
+
+# Calculate the mean of experiment BC_DOX
+# Calculate the standard deviation of BC_DOX
+# Calculate the mean of experiment DL
+# Calculate the standard deviation of DL
+# Calculate the mean of experiment DL_DOX
+# Calculate the standard deviation of DL_DOX
+
+head(dat_new)
+```
+
+# Now save your data to a csv file and download it to your files
+```{r}
+write.csv(dat_new, "my_analysis.csv")
+```
+
+###################################
+# STEP 3 GGPLOT
+###################################
+
+# 3.1 GGplot Training challenge
+# 3.2 GGplot more in-depth walk-though
+
+###################################
+# 3.1 GGplot Training challenge
+###################################
+## Loading our excel file
+
+Now we can use a built-in function called `read_excel()` that will help us load our data into R:
+
+```{r}
+brca_clinical <- read_excel("tcga_clinical_data.xlsx",
+                            sheet = 1, 
+                            skip = 1,
+                            na = "NA"
+                            )
+```
+
+## Challenge 1 (5 minutes)
+
+Take a look at the documentation for `read_excel()`. This is a package in the package `readxl`, which is installed as part of the `tidyverse`.
+
+1.  What does the `skip` argument do?
+2.  Do we need to refer to a `sheet` within an excel file as a number, or can we refer to it as the sheet name instead?
+3.  What does the `guess_max` argument do?
+
+We often need to reference the names of *variables* (also known as columns) in our `data.frame`, so it's useful to print only those to the screen:
+
+```{r}
+# view column names
+
+colnames(brca_clinical) 
+```
+
+Another useful command is `View()` - it will open up a spreadsheet like view of our `data_frame`. You can also view this by clicking on the `brca_clinical` object in the `Environment` pane in the top-right.
+
+```{r}
+View(brca_clinical)
+```
+
+Now that we've loaded our data as a `data.frame`, we can begin to start doing things with it.
+
+Let's start with visualizing the data.
+
+## Working Towards a Graph
+
+## `ggplot2`: A Grammar of Graphics
+
+`ggplot2` is an extremely powerful software library for visualization.
+
+The `gg` is short for Grammar of Graphics, which means that visualizations are expressed in a very specific way.
+
+## Learning to read `ggplot2` code
+
+A `ggplot2` graphic consists of a:
+
+-   `mapping` of variables in `data` to
+-   `aes()`thetic attributes of
+-   `geom_`etric objects.
+
+In code, this is translated as:
+
+    #start the plot with ggplot()
+
+    ggplot(data = brca_clinical) +   
+
+
+    # make the mapping
+    # map the x-axis to age_at_diagnosis
+
+          aes(
+              x = age_at_diagnosis, 
+              y = days_to_birth 
+              ) +
+
+    # add the geometry
+      geom_point()
+
+Things to note: we chain these three things together with `+` (plus sign). I tend to read the plus as `then`.
+
+[aes() function - mapping variables to visual properties of the graph]
+
+## Challenge
+
+Map the appropriate variables in `brca_clinical` to the x, and y aesthetics to make an Age vs. Days to Last Followup graph. Run your plot. Is it what you expected?
+
+What's missing compared to the graph above?
+
+```{r}
+ggplot(data = brca_clinical) +
+
+  aes(x = _____ ,
+      y = _____ ) +
+  
+  geom_point()
+
+
+```
+
+## Simple arithmetic
+
+Huh. `age_at_diagnosis` is in days, not years. We can fix that by dividing it by 365:
+
+```{r}
+ggplot(data = brca_clinical) +
+
+  aes(x = age_at_diagnosis / 365 ,
+      y = days_to_last_follow_up ) +
+  
+  geom_point()
+
+
+```
+
+## Color
+
+We can also map a `character` variable to our graph to color.
+
+Try mapping `gender` to `color`.
+
+```{r}
+ggplot(data = brca_clinical) +
+
+  aes(x = age_at_diagnosis / 365 ,
+      y = days_to_last_follow_up,  
+      color = _____) +
+  
+  geom_point() 
+```
+
+## Titles
+
+We can add more details to our graph. We can add a title using the `labs()` function:
+
+```{r}
+ggplot(data = brca_clinical) +
+
+  aes(x = age_at_diagnosis / 365 ,
+      y = days_to_last_follow_up,  
+      color = gender) +
+  
+  geom_point() +
+  
+  labs(title="Age versus Days to Last followup") 
+
+```
+
+## Changing the Axis Labels
+
+We can change the x-axis titles and the y-axis titles using the `xlab()` (short for x label) and `ylab()` functions:
+
+```{r}
+ggplot(data = brca_clinical) +
+
+  aes(x = age_at_diagnosis / 365 ,
+      y = days_to_last_follow_up,  
+      color = gender) +
+  
+  geom_point() +
+  
+  ggtitle("Age versus Days to Last followup") +
+  
+  xlab("Age at Diagnosis (Years)") + 
+  
+  ylab("Days to Follow Up")
+
+```
+
+Now we've created a cool plot! Let's save it using `ggsave()`. `ggsave()` saves the last created plot to a file. We'll save it as a `jpg` file. `ggsave()` is smart enough to know that we want to save it as a `jpg` from adding the extension `.jpg` to our filename.
+
+```{r}
+ggsave("follow-up-plot.jpg")
+```
+
+#######################################
+# 3.2 GGplot more in-depth walk-though
+#######################################
+
+```{r}
+# Load the tidyverse library
+library(tidyverse)
+# Load the ggplot2 library
+library(ggplot2)
+
+# Create a sample data frame
+data <- data.frame(
+  Group = rep(c("A", "B", "C", "D"), each = 20),
+  Value = rnorm(80)
+)
+
+# Create the boxplot
+ggplot(data, aes(x = Group, y = Value)) +
+  geom_boxplot() +
+  xlab("Group") +
+  ylab("Value") +
+  ggtitle("Boxplot of Values by Group")
+```
+
+# Read in Genes data
+```{r}
+Genes = read.csv("Genes_FPKM.csv")
+
+head(Genes)
+```
+
+# Create GAPDH boxplot
+```{r}
+# Load the ggplot2 library
+library(ggplot2)
+
+# Add color pallete
+install.packages('palettetown')
+library(palettetown)
+# https://github.com/timcdlucas/palettetown
+
+# Make colors!
+my_colors <- pokepal(pokemon = 137, spread = 4)
+
+
+# Create the boxplot
+ggplot(Genes, aes(x = Experiment.Group, y = GAPDH_FPKM, fill = Experiment.Group)) +
+  geom_boxplot() +
+  xlab("Group") +
+  ylab("GAPDH_FPKM") +
+  scale_fill_manual(values = my_colors) +
+  ggtitle("FPKM of GAPDH")
+```
+
+# Create H19 boxplot
+# Be sure to include appropriate comments and code
+```{r}
+
+
+
+```
