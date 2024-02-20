@@ -23,7 +23,13 @@ head(dat_1)
 head(dat_2)
 ```
 
-# Let's look at the dimensions and column names of the data
+# Challenge Question
+# What do you observe when you look at dat_1?
+
+# What do you observe when you look at dat_2?
+
+
+# Let's look at the dimensions and column names of dat_1
 ```{r}
 # This function tells you the number of rows and columns
 dim(dat_1)
@@ -72,6 +78,12 @@ summary_data2 <- dat_1 %>%
 
 summary_data2
 ```
+# Summarize the gene length by Chromosome for dat_1
+# Calculate the average gene length, total gene length, median gene length, and max gene length
+```{r}
+
+```
+
 
 # Join both dat_1 and dat_2 tables together
 ```{r}
@@ -148,7 +160,6 @@ We often need to reference the names of *variables* (also known as columns) in o
 
 ```{r}
 # view column names
-
 colnames(brca_clinical) 
 ```
 
@@ -316,12 +327,21 @@ ggplot(data, aes(x = Group, y = Value)) +
   ggtitle("Boxplot of Values by Group")
 ```
 
-# Read in Genes data
+# Get your data for the Genes_FPKM.csv file into R
 ```{r}
-Genes = read.csv("Genes_FPKM.csv")
+# Read in the Genes_FPKM.csv file and assign it to the object Genes
 
-head(Genes)
+# What are the number of rows and columns in this dataset?
+
+# What type of data is this (matrix or dataframe)?
+
+# Look at the top 6 rows of the dataset
+
+
 ```
+# Challenge question
+# What do you think this data is showing?
+
 
 # Create GAPDH boxplot
 ```{r}
@@ -345,11 +365,31 @@ ggplot(Genes, aes(x = Experiment.Group, y = GAPDH_FPKM, fill = Experiment.Group)
   scale_fill_manual(values = my_colors) +
   ggtitle("FPKM of GAPDH")
 ```
+# Challenge question
+# What do you think each element of the ggplot code does?
+# ggplot(Genes, aes(x = Experiment.Group, y = GAPDH_FPKM, fill = Experiment.Group)) +
+
+#  geom_boxplot() +
+
+#  xlab("Group") +
+
+#  ylab("GAPDH_FPKM") +
+
+#  scale_fill_manual(values = my_colors) +
+
+#  ggtitle("FPKM of GAPDH")
+
 
 # Create H19 boxplot
 # Be sure to include appropriate comments and code
+# Use different colors than for the GAPDH plot
 ```{r}
 
 
 
 ```
+
+# Challenge question
+# Describe what each plot is showing
+
+# Compare the two plots to eachother, what is similar and what is different?
